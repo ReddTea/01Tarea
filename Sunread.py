@@ -32,7 +32,7 @@ flujo=(datos[:,1]*unit.W*unit.m**(-2)*unit.nm**(-1)).to('erg/(s cm2 um)')
 plt.plot(wavelength,flujo)
 plt.xlabel('Longitud de onda [$um$]',fontsize=18)
 plt.xlim(0,8) #se agrega límite
-plt.ylabel('Flujo [$\\frac{erg}{s*cm^2*um^-1}$]',fontsize=18)
+plt.ylabel('Flujo [$\\frac{erg}{s*cm^2*um^1}$]',fontsize=18)
 plt.title('Radiacion de Cuerpo Negro del Sol',fontsize=22)
 plt.savefig('Spectre.png')
 plt.show()
@@ -60,9 +60,11 @@ for i in range(len(wavelength)-1):
 print 'Integral_1='+str(Integral_1)
 
 #la luminosidad total corresponde a la superficie de la esfera x su flujo
+#o sea, lo que nos llega a nosotros, considerándonos puntuales, multiplicado
+#por la superficie de la esfera de radio 1UA
 
 luminosidad_total= 4*np.pi*Integral_1*(cte.au).to('cm')**2
-print 'luminosidad_total= '+str(luminosidad_total)
+print 'Luminosidad Total= '+str(luminosidad_total)
 estabien=luminosidad_total.to('W')-cte.L_sun #nótese que la diferencia es de 3 órdenes de magnitud menor...
 
 ###################################################################
@@ -96,8 +98,8 @@ for i in range(len(planx)-1):
     Integral_2+=kkk
 
 ###################VERIFICANDO SI ESTÁ BIEN HASTA AHORA########################
-#print 'Integral_2= '+str(print Integral_2)                                   #
-#estabien2= np.pi**4/15.0 -Integral_2 #el error es de 7 magnitudes menor!!    #
+print 'Integral_2= '+str(Integral_2)                                   #
+estabien2= np.pi**4/15.0 -Integral_2 #el error es de 7 magnitudes menor!!    #
 ##################################LO ESTÁ #####################################
 
 #ahora la integral falta multiplicarla por las constantes omitidas y convertirla
@@ -105,11 +107,11 @@ for i in range(len(planx)-1):
 
 megaconstante=2*np.pi*((cte.k_B*5778*unit.K)**4)/((cte.c**2)*(cte.h**3))
 bbrcgs=(Integral_2*megaconstante).to('erg / cm2 s') #radiacion en cgs
-print 'radiacion en cgs= '+str(bbrcgs)
+print 'Radiación de Cuerpo Negro en [cgs]= '+str(bbrcgs)
 
 #cálculo del radio solar
 radio_solar=((Integral_1/bbrcgs)*(cte.au).to('cm')**2)**0.5
-print 'radio_solar en cm= '+ str(radio_solar)
+print 'Radio del Solar en [cm]= '+ str(radio_solar)
 
 #comprobando si está bien o no
 estabien3=radio_solar-cte.R_sun #error de 3 km... despreciable!
@@ -154,10 +156,12 @@ funcion=lambda x: (x**3)/(np.exp(x) - 1)
 I2_quad= integrate.quad(funcion,0.0,np.inf)[0]*unit.erg/(unit.cm**2*unit.s)
 print 'I2_quad= '+str(I2_quad) # Me da un vector, lo saqué a la mala, ya que el primer número era el correcto
 #print 'estabien41= '+str(Integral_1-I1_quad) #error de 10^-9
-print 'Comparar 1'
+print '----------Comparar tiempos integral 1------------'
+#IMPORTANTE!: A VECES SE FALLA CON EL TIMEIT!
+#ni idea por qué.. es sólo a veces...
 print 'algoritmo scipy tarda en I1_trapz= ', kronos('%timeit I1_trapz')
 print 'algoritmo mio tarda en Integral_1= ', kronos('%timeit Integral_1')
-print 'Comparar 2'
+print '------------Comparar tiempos integral 2------------'
 print 'algoritmo scipy tarda en I2_trapz= ', kronos('%timeit I2_trapz')
 print 'algoritmo scipy tarda en I2_quad= ', kronos('%timeit I2_quad')
 print 'algoritmo mio tarda en bbrcgs= ', kronos('%timeit bbrcgs')
